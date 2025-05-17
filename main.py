@@ -6,6 +6,7 @@ from datetime import datetime
 from colorama import Fore, Style, init
 import time
 
+
 class DiscordPromoChecker:
     def __init__(self, country_code="IN"):
         init(autoreset=True)
@@ -52,23 +53,22 @@ class DiscordPromoChecker:
 
     def ascii(self):
         ascii_art = """
- █████                             
-░░███                              
- ░███   ██████   ██████  ████████  
- ░███  ███░░███ ███░░███░░███░░███ 
- ░███ ░███ ░░░ ░███ ░███ ░███ ░███ 
- ░███ ░███  ███░███ ░███ ░███ ░███ 
- █████░░██████ ░░██████  ████ █████
-░░░░░  ░░░░░░   ░░░░░░  ░░░░ ░░░░░ 
-"""
+ █████                                                   
+░░███                                                    
+ ░███   ██████   ██████  ████████   ████████   ████████  
+ ░███  ███░░███ ███░░███░░███░░███ ░░███░░███ ░░███░░███ 
+ ░███ ░███ ░░░ ░███ ░███ ░███ ░███  ░███ ░███  ░███ ░███ 
+ ░███ ░███  ███░███ ░███ ░███ ░███  ░███ ░███  ░███ ░███ 
+ █████░░██████ ░░██████  ████ █████ ████ █████ ████ █████
+░░░░░  ░░░░░░   ░░░░░░  ░░░░ ░░░░░ ░░░░ ░░░░░ ░░░░ ░░░░░ 
+                                                         
+"""                                  
         pc = "\033[38;2;141;10;255m"
         e = "aHR0cHM6Ly9naXRodWIuY29tL2ljb254eXp6"
         d = base64.b64decode(e).decode("utf-8")
         w = os.get_terminal_size().columns
         print(pc + "\n".join(line.center(w) for line in ascii_art.splitlines()))
-        print()
-        print(pc + " " * 74 + "Made by: " + d)
-        print(Style.RESET_ALL + "\n" * 2)
+        print(Style.RESET_ALL + "\n")
 
     def cleamterminal(self):
         os.system('cls' if os.name == 'nt' else 'clear')
@@ -99,6 +99,15 @@ class DiscordPromoChecker:
         try:
             response = self.session.get(
                 f"https://discord.com/api/v9/entitlements/gift-codes/{promo_code}", headers=self.headers, params=self.params)
+            
+            if response.status_code == 401:
+                print(f"{Fore.WHITE} >> Promo - {self.color_codes['red']}{formatted_promo} >> Invalid Token")
+                return
+            
+            if response.status_code == 429:
+                print(f"{Fore.WHITE} >> Promo - {self.color_codes['red']}{formatted_promo} >> Rate Limited")
+                time.sleep(5)
+                return
             
             if response.status_code == 404:
                 print(f"{Fore.WHITE} >> Promo - {self.color_codes['red']}{formatted_promo} >> Invalid")
@@ -141,8 +150,10 @@ class DiscordPromoChecker:
         if not self.promo_codes:
             print(f"{Fore.RED}(-) No promo codes found in input.txt")
             return
+
         for promo_code in self.promo_codes:
             self.check(promo_code)
+
         print(f"\n\n{Fore.WHITE}(+) Finished checking promo codes !!")
         input(f"\n{Fore.YELLOW}(#) Press Enter to exit")
         
