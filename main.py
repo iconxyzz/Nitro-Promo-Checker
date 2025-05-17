@@ -6,15 +6,14 @@ from datetime import datetime
 from colorama import Fore, Style, init
 import time
 
-
 class DiscordPromoChecker:
     def __init__(self, country_code="IN"):
         init(autoreset=True)
-        self.clean_terminal()
-        self.print_ascii_art()
+        self.cleamterminal()
+        self.ascii()
         self.session = requests.Session()
         self.country_code = country_code
-        self.promo_codes = self.get_promo_codes()
+        self.promo_codes = self.getpromos()
 
         self.color_codes = {
             "yellow": "\033[38;2;252;240;3m",
@@ -51,7 +50,7 @@ class DiscordPromoChecker:
             "X-Super-Properties": "eyJvcyI6IldpbmRvd3MiLCJicm93c2VyIjoiQ2hyb21lIiwiZGV2aWNlIjoiIiwic3lzdGVtX2xvY2FsZSI6ImVuLUlOIiwiaGFzX2NsaWVudF9tb2RzIjpmYWxzZSwiYnJvd3Nlcl91c2VyX2FnZW50IjoiTW96aWxsYS81LjAgKExpbnV4OyBBbmRyb2lkIDYuMDsgTmV4dXMgNSBCdWlsZC9NUkE1OE4pIEFwcGxlV2ViS2l0LzUzNy4zNiAoS0hUTUwsIGxpa2UgR2Vja28pIENocm9tZS8xMzYuMC4wLjAgTW9iaWxlIFNhZmFyaS81MzcuMzYiLCJicm93c2VyX3ZlcnNpb24iOiIxMzYuMC4wLjAiLCJvc192ZXJzaW9uIjoiNi4wIiwicmVmZXJyZXIiOiJodHRwczovL2Rpc2NvcmQuY29tLz9kaXNjb3JkdG9rZW49TVRNMk9Ua3hNall4TkRZNU9Ua3lOVFUzTmcuR21KVmlFLjFvZjNDRmxRcEhzM05IS3k5b01yc0lnNHR4V0lFQ2F4d2gtXzRRIiwicmVmZXJyaW5nX2RvbWFpbiI6ImRpc2NvcmQuY29tIiwicmVmZXJyZXJfY3VycmVudCI6IiIsInJlZmVycmluZ19kb21haW5fY3VycmVudCI6IiIsInJlbGVhc2VfY2hhbm5lbCI6InN0YWJsZSIsImNsaWVudF9idWlsZF9udW1iZXIiOjQwMDQ1MywiY2xpZW50X2V2ZW50X3NvdXJjZSI6bnVsbCwiY2xpZW50X2xhdW5jaF9pZCI6IjA4NWUzOWIxLTNiZGItNDY0MS1iNTljLTA5ZDJmNDEyMTFjZiIsImNsaWVudF9oZWFydGJlYXRfc2Vzc2lvbl9pZCI6ImQ5MDk1ODMxLTUyMDAtNDkxMS05ODE0LTQ0OTU2OTM0ODEyZSJ9"
         }
 
-    def print_ascii_art(self):
+    def ascii(self):
         ascii_art = """
  █████ █████                                        ███      █████         
 ░░███ ░░███                                        ░░░      ░░███          
@@ -62,19 +61,19 @@ class DiscordPromoChecker:
  █████ █████░░██████  ████ █████░░██████ ░░██████  █████░░████████░░██████ 
 ░░░░░ ░░░░░  ░░░░░░  ░░░░ ░░░░░  ░░░░░░   ░░░░░░  ░░░░░  ░░░░░░░░  ░░░░░░  
 """
-        purple_color = "\033[38;2;141;10;255m"
+        pc = "\033[38;2;141;10;255m"
         e = "aHR0cHM6Ly9naXRodWIuY29tL2ljb254eXp6"
         d = base64.b64decode(e).decode("utf-8")
         w = os.get_terminal_size().columns
-        print(purple_color + "\n".join(line.center(w) for line in ascii_art.splitlines()))
+        print(pc + "\n".join(line.center(w) for line in ascii_art.splitlines()))
         print()
-        print(purple_color + " " * 74 + "Made by: " + d)
+        print(pc + " " * 74 + "Made by: " + d)
         print(Style.RESET_ALL + "\n" * 2)
 
-    def clean_terminal(self):
+    def cleamterminal(self):
         os.system('cls' if os.name == 'nt' else 'clear')
 
-    def get_promo_codes(self):
+    def getpromos(self):
         try:
             with open('input.txt') as f:
                 return re.findall(r'/promotions/(\w+)', f.read()) or []
@@ -82,18 +81,18 @@ class DiscordPromoChecker:
             print(f"{Fore.RED}[-] Error: input.txt file not found")
             exit()
 
-    def format_code(self, code):
+    def formattedpromo(self, code):
         return code if len(code) <= 8 else f"{code[:8]}............{code[-8:]}"
 
-    def save_result(self, filename, promo_code):
+    def save(self, filename, promo_code):
         try:
             with open(filename, 'a') as f:
                 f.write(f"https://discord.com/billing/promotions/{promo_code}\n")
         except IOError as e:
             print(f"{Fore.RED}Error saving to {filename}: {e}")
 
-    def check_promo(self, promo_code):
-        formatted_promo = self.format_code(promo_code)
+    def check(self, promo_code):
+        formatted_promo = self.formattedpromo(promo_code)
         current_time = datetime.now().strftime("%H:%M:%S")
         self.headers["Referer"] = f"https://discord.com/billing/promotions/{promo_code}"
         
@@ -103,7 +102,7 @@ class DiscordPromoChecker:
             
             if response.status_code == 404:
                 print(f"{Fore.WHITE} >> Promo - {self.color_codes['red']}{formatted_promo} >> Invalid")
-                self.save_result('invalid.txt', promo_code)
+                self.save('invalid.txt', promo_code)
             
             elif response.status_code == 200:
                 data = response.json()
@@ -111,7 +110,7 @@ class DiscordPromoChecker:
                 
                 if uses == 1:
                     print(f"{Fore.WHITE} >> Promo - {self.color_codes['red']}{formatted_promo} | Redeemed")
-                    self.save_result('redeemed.txt', promo_code)
+                    self.save('redeemed.txt', promo_code)
                 else:
                     trial = data.get('subscription_trial', {})
                     interval = trial.get('interval_count', 1)
@@ -130,7 +129,7 @@ class DiscordPromoChecker:
 
                     print(
                         f"{Fore.WHITE} >> Promo - {self.color_codes['green']}{formatted_promo} | {self.color_codes['yellow']}Duration: {duration} | {self.color_codes['pink']}Redeemed: False | {self.color_codes['blue']}Expires In: {days_remaining}d")
-                    self.save_result(filename, promo_code)
+                    self.save(filename, promo_code)
             
             else:
                 print(f"{Fore.WHITE} >> Unknown Status: {response.status_code}")
@@ -142,10 +141,8 @@ class DiscordPromoChecker:
         if not self.promo_codes:
             print(f"{Fore.RED}(-) No promo codes found in input.txt")
             return
-
         for promo_code in self.promo_codes:
-            self.check_promo(promo_code)
-
+            self.check(promo_code)
         print(f"\n\n{Fore.WHITE}(+) Finished checking promo codes !!")
         input(f"\n{Fore.YELLOW}(#) Press Enter to exit")
         
